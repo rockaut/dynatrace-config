@@ -17,7 +17,7 @@ Possible with go and python. No shortcomings in any way.
 #### k8s pod / controller
 
 - Pod could run constantly but also short-lived
-- it would fetch multiple/single file(s) from defined sources (git, https) and apply the configs to target
+- it would fetch multiple/single file(s) from defined sources (git, https) and apply the configs to target (the gitops way)
 - go would fit better as theres a smaller image
 
 ...
