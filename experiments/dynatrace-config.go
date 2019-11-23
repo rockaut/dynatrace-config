@@ -49,19 +49,41 @@ func main() {
 		return
 	}
     
+    // validate new configuration
+    if execHttpRequest("POST", apiUrl + "/" + uri + "/validator", payloadJson, apiToken, 204) {
+        fmt.Println("Successfully validated configuration!")
+        // apply configuration
+        if execHttpRequest(method, apiUrl + "/" + uri, payloadJson, apiToken, success) {
+            fmt.Println("Successfully applied configuration!")
+        }
+    } else {
+        fmt.Println("Validation was not successful. I am sorry.")
+    }
+
+    defer jsonFile.Close()
+}
+
+func execHttpRequest(method string, url string, data []byte, apiToken string, expectedReturncode int) bool {
     // execute http request as defined in the configuration file
     client := &http.Client{}
-    req, err := http.NewRequest(method, apiUrl + "/" + uri, bytes.NewBuffer(payloadJson))
+    req, err := http.NewRequest(method, url, bytes.NewBuffer(data))
+    if err != nil {
+        fmt.Println("Error occured: ", err)
+        return false
+    }
     req.Header.Add("accept","application/json")
     req.Header.Add("Authorization","Api-Token " + apiToken)
     req.Header.Add("Content-Type", "application/json; charset=utf-8")
     resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println(err.Error())
+		return false
+	}
     // check if http statuscode is the same as in the success field in the configuration file
-    if resp.StatusCode == success {
-        fmt.Println("Success!")
+    if resp.StatusCode == expectedReturncode {
+        return true
     } else {
-        fmt.Println("Returncode not as expected: " + string(resp.StatusCode))
+        fmt.Println("Returncode not as expected: " + string(resp.StatusCode) + resp.Status)
     }
-
-    defer jsonFile.Close()
+    return false
 }
