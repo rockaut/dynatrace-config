@@ -26,8 +26,10 @@ func main() {
     apiUrl = os.Getenv("DYNATRACE_API_URL")
     apiToken = os.Getenv("DYNATRACE_API_TOKEN")
 
+    // configuration json is set via command line argument
+    jsonFilePath := os.Args[1]
     // open the dynatrace configuration json
-    jsonFile, err := os.Open("config/anomaly-detection-service.json")
+    jsonFile, err := os.Open(jsonFilePath)
     // if we os.Open returns an error then handle it
     if err != nil {
         fmt.Println(err)
