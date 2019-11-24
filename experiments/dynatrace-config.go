@@ -78,17 +78,26 @@ func main() {
 
             // thats experimantal quick approach using github.com/yudai/gojsondiff
             // configurationVersions and clusterVersion is obviously always different.
-            var aJson map[string]interface{}
-            json.Unmarshal(currentState, &aJson)
+            var currentStateJson map[string]interface{}
+            json.Unmarshal(currentState, &currentStateJson)
+
+            // ignore metadata when diffing currentState with desiredState
+            delete(currentStateJson,"metadata")
+            currentStateWithoutMetadata, _ := json.Marshal(currentStateJson)
+            
             config := formatter.AsciiFormatterConfig{
                 ShowArrayIndex: true,
                 Coloring:       true,
             }
             differ := gojsondiff.New()
-            d, err := differ.Compare(currentState, payloadJson)
-            formatter := formatter.NewAsciiFormatter(aJson, config)
-            diffString, err := formatter.Format(d)
-            fmt.Print(diffString)
+            d, err := differ.Compare(currentStateWithoutMetadata, payloadJson)
+            if d.Modified() {
+                formatter := formatter.NewAsciiFormatter(currentStateJson, config)
+                diffString, _ := formatter.Format(d)
+                fmt.Print(diffString)
+            } else {
+                fmt.Print("no difference found.")
+            }
         }
     case "validate":
         success, _ := execHttpRequest("POST", apiUrl + "/" + uri + "/validator", payloadJson, apiToken, 204) 
