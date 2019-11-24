@@ -34,11 +34,29 @@ Possible with go and python. No shortcomings in any way.
 ```
 export DYNATRACE_API_URL="https://yourenvironment.live.dynatrace.com/api/config"
 export DYNATRACE_API_TOKEN="xxxxxx"
-go run experiments/dynatrace-config.go experiments/config/anomaly-detection-service.json
 ```
 
-#### Expected Result:
-program should return 'Success!' and should change your configuration according to your json file
+there are different command parameters available:
+
+get current state of the configuration object:
+```
+go run experiments/dynatrace-config.go get experiments/config/anomaly-detection-service.json
+```
+
+show diff between current state and desired state of the configuration object:
+```
+go run experiments/dynatrace-config.go diff experiments/config/anomaly-detection-service.json
+```
+
+validate desired state:
+```
+go run experiments/dynatrace-config.go validate experiments/config/anomaly-detection-service.json
+```
+
+apply desired state:
+```
+go run experiments/dynatrace-config.go apply experiments/config/anomaly-detection-service.json
+```
 
 #### Findings:
 - from my opinion it doesn't make sense to build a new API or configuration layer. In the configuration json files there needs to be the same payload as the dynatrace API server expects. Otherwise we always need to adapt our tool when the dynatrace API changes or will be expanded
