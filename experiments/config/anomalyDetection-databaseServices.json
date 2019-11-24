@@ -1,7 +1,6 @@
 {
     "uri": "v1/anomalyDetection/databaseServices",
-    "method": "put",
-    "payload": {
+    "configuration": {
     "responseTimeDegradation": {
       "detectionMode": "DETECT_AUTOMATICALLY",
       "automaticDetection": {
@@ -24,6 +23,5 @@
       "connectionFailsCount": 5,
       "timePeriodMinutes": 5
     }
-  },
-  "success": 204
+  }
 }

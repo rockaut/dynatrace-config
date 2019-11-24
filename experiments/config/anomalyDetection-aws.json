@@ -1,7 +1,6 @@
 {
     "uri": "v1/anomalyDetection/aws",
-    "method": "put",
-    "payload": {
+    "configuration": {
         "rdsHighCpuDetection": {
             "enabled": true
         },
@@ -26,6 +25,5 @@
         "ec2CandidateCpuSaturationDetection": {
             "enabled": true
         }
-    },
-    "success": 204
+    }
 }

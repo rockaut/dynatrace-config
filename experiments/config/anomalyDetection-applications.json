@@ -1,7 +1,6 @@
 {
   "uri": "v1/anomalyDetection/applications",
-  "method": "put",
-  "payload": {
+  "configuration": {
     "responseTimeDegradation": {
       "detectionMode": "DETECT_AUTOMATICALLY",
       "automaticDetection": {
@@ -26,6 +25,5 @@
         "failingServiceCallPercentageIncreaseRelative": 50
       }
     }
-  },
-  "success": 204
+  }
 }

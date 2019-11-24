@@ -1,7 +1,6 @@
 {
     "uri": "v1/anomalyDetection/vmware",
-    "method": "put",
-    "payload": {
+    "configuration": {
         "esxiHighCpuSaturation": {
         "enabled": true
         },
@@ -26,6 +25,5 @@
         "lowDatastoreSpaceDetection": {
         "enabled": true
         }
-    },
-    "success": 204
+    }
 }
