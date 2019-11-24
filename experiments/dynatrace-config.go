@@ -14,9 +14,7 @@ import (
 func main() {    
     var config map[string]interface{}
     var uri string
-    var method string
-    var payload map[string]interface{}
-    var success int
+    var configuration map[string]interface{}
     var apiUrl string
     var apiToken string
 
@@ -34,6 +32,28 @@ func main() {
     // configuration json is set via command line argument
     jsonFilePath := os.Args[2]
 
+    // some configuration objects are simple, some are lists and
+    listConfigurations := map[string]string {
+        "v1/alertingProfiles": "displayName",
+        "v1/anomalyDetection/diskEvents": "name",
+        "v1/anomalyDetection/metricEvents": "name",
+        "v1/applicationDetectionRules": "applicationIdentifier",
+        "v1/autoTags": "name",
+        "v1/aws/credentials": "label",
+        "v1/cloudFoundry/credentials": "name",
+        //"v1/dashboards": "dashboardMetadata": {"name"} // currently nested path to nameIdentifier is not allowed
+        "v1/kubernetes/credentials": "label",
+        "v1/customMetric/log": "displayName",
+        "v1/maintenanceWindows": "name",
+        "v1/managementZones": "name",
+        "v1/notifications": "name",
+        //"v1/service/customServices": "name" // customServices is split into different technologies, not supported right now
+        //"v1/service/ibmMQTracing/imsEntryQueue": "??" // document says name but in configuration payload there is no name
+        "v1/service/ibmMQTracing/queueManager": "name",
+        "v1/service/requestAttributes": "name",
+        "v1/service/requestNaming": "namingPattern", // not sure ...
+    }
+
     // open the dynatrace configuration json
     jsonFile, err := os.Open(jsonFilePath)
     // if we os.Open returns an error then handle it
@@ -45,11 +65,9 @@ func main() {
     json.Unmarshal(byteValue, &config)
 
     uri = config["uri"].(string)
-    method = config["method"].(string)
-    payload = config["payload"].(map[string]interface {})
-    success = int(config["success"].(float64))
+    configuration = config["configuration"].(map[string]interface {})
 
-    payloadJson, err := json.Marshal(payload)	
+    configurationJson, err := json.Marshal(configuration)	
 	if err != nil {
 		fmt.Println(err.Error())
 		return
@@ -90,7 +108,7 @@ func main() {
                 Coloring:       true,
             }
             differ := gojsondiff.New()
-            d, err := differ.Compare(currentStateWithoutMetadata, payloadJson)
+            d, err := differ.Compare(currentStateWithoutMetadata, configurationJson)
             if d.Modified() {
                 formatter := formatter.NewAsciiFormatter(currentStateJson, config)
                 diffString, _ := formatter.Format(d)
@@ -100,14 +118,19 @@ func main() {
             }
         }
     case "validate":
-        success, _ := execHttpRequest("POST", apiUrl + "/" + uri + "/validator", payloadJson, apiToken, 204) 
+        success, _ := execHttpRequest("POST", apiUrl + "/" + uri + "/validator", configurationJson, apiToken, 204) 
         if success {
             fmt.Println("Successfully validated configuration!")
         }
     case "apply":
-        success, _ := execHttpRequest(method, apiUrl + "/" + uri, payloadJson, apiToken, success)
-        if success {
-            fmt.Println("Successfully applied configuration!")
+        // depending on the uri we need to apply the configuration directly or find the corresponding list item
+        if name, found := listConfigurations[uri]; found {
+            createOrConfigureListItem(name, apiUrl, uri, configurationJson, apiToken)
+        } else {
+            success, _ := execHttpRequest("PUT", apiUrl + "/" + uri, configurationJson, apiToken, 204)
+            if success {
+                fmt.Println("Successfully applied configuration!")
+            }
         }
     default:
         fmt.Println("Please specify a valid command as first parameter [get|diff|validate|apply]")
@@ -138,4 +161,46 @@ func execHttpRequest(method string, url string, data []byte, apiToken string, ex
         fmt.Println("Returncode not as expected: " + string(resp.StatusCode) + resp.Status)
     }
     return false, resp
+}
+
+func getIdByName(name string, url string, apiToken string) (string) {
+    success, response := execHttpRequest("GET", url, nil, apiToken, 200)
+    if success {
+        bodyBytes, err := ioutil.ReadAll(response.Body)
+        if err != nil {
+            fmt.Println(err.Error())
+            return ""
+        }
+
+        var responseMap map[string]interface{}
+        json.Unmarshal(bodyBytes, &responseMap)
+        for _, element := range responseMap["values"].([]interface {}) {
+            elementMap := element.(map[string]interface {})
+            if elementMap["name"] == name {
+                return elementMap["id"].(string)
+            }
+        }
+    }
+    return ""
+}
+
+// used for list items
+func createOrConfigureListItem(name string, apiUrl string, uri string, configurationJson []byte, apiToken string) {
+    var config map[string]interface{}
+    json.Unmarshal(configurationJson, &config)
+    nameIdentifier := config[name].(string)
+    id := getIdByName(nameIdentifier, apiUrl + "/" + uri, apiToken)
+    // if id is empty, we need to create a new element with POST method
+    if id == "" {
+        success, _ := execHttpRequest("POST", apiUrl + "/" + uri, configurationJson, apiToken, 201)
+        if success {
+            fmt.Println("Successfully created new configuration!")
+        }       
+    // if id already exists, then execute a PUT on the specific ID element        
+    } else {
+        success, _ := execHttpRequest("PUT", apiUrl + "/" + uri + "/" + id, configurationJson, apiToken, 204)
+        if success {
+            fmt.Println("Successfully configured existing configuration!")
+        }                 
+    }
 }

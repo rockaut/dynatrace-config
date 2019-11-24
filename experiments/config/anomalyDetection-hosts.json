@@ -1,7 +1,6 @@
 {
     "uri": "v1/anomalyDetection/hosts",
-    "method": "put",
-    "payload": {
+    "configuration": {
         "connectionLostDetection": {
         "enabled": true,
         "enabledOnGracefulShutdowns": false
@@ -45,6 +44,5 @@
         "diskLowInodesDetection": {
         "enabled": true
         }
-    },
-    "success": 204
+    }
 }
