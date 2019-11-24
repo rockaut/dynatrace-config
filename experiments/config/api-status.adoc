@@ -1,9 +1,11 @@
 Status of exported configuration objects
 
 Simple:
+
 - all simple APIs are already in the config folder
 
 Lists:
+
 - v1/alertingProfiles (empty by default)
 - v1/anomalyDetection/diskEvents (empty by default)
 - v1/anomalyDetection/metricEvents (some entries already exist)
@@ -25,6 +27,7 @@ Lists:
 
 
 more complex APIs:
+
 - v1/symfiles (Mobile Deobfuscation and Symbolication), needs an applicationId
 - v1/plugins
 - v1/service/detectionRules/FULL_WEB_REQUEST (empty by default) - not sure what this API does
