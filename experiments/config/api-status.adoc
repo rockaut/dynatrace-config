@@ -1,0 +1,33 @@
+Status of exported configuration objects
+
+Simple:
+- all simple APIs are already in the config folder
+
+Lists:
+- v1/alertingProfiles (empty by default)
+- v1/anomalyDetection/diskEvents (empty by default)
+- v1/anomalyDetection/metricEvents (some entries already exist)
+- v1/applicationDetectionRules (empty by default)
+- v1/autoTags (inludes sample tag entry)
+- v1/aws/credentials (empty by default)
+- v1/cloudFoundry/credentials (empty by default)
+- v1/dashboards (home dashboard entry)
+- v1/kubernetes/credentials (empty by default)
+- v1/customMetric/log (empty by default)
+- v1/maintenanceWindows (empty by default)
+- v1/managementZones (empty by default)
+- v1/notifications (empty by default)
+- v1/service/customServices/{technology} (empty by default)
+- v1/service/ibmMQTracing/imsEntryQueue (empty by default)
+- v1/service/ibmMQTracing/queueManager (empty by default)
+- v1/service/requestAttributes (empty by default)
+- v1/service/requestNaming (empty by default)
+
+
+more complex APIs:
+- v1/symfiles (Mobile Deobfuscation and Symbolication), needs an applicationId
+- v1/plugins
+- v1/service/detectionRules/FULL_WEB_REQUEST (empty by default) - not sure what this API does
+- v1/service/detectionRules/FULL_WEB_SERVICE (empty by default) - not sure what this API does
+- v1/service/detectionRules/OPAQUE_AND_EXTERNAL_WEB_REQUEST (empty by default) - not sure what this API does
+- v1/applications/web (empty by default) 

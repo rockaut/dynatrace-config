@@ -1,0 +1,31 @@
+{
+    "uri": "v1/anomalyDetection/vmware",
+    "method": "put",
+    "payload": {
+        "esxiHighCpuSaturation": {
+        "enabled": true
+        },
+        "guestCpuLimitReached": {
+        "enabled": true
+        },
+        "esxiHighMemoryDetection": {
+        "enabled": true
+        },
+        "overloadedStorageDetection": {
+        "enabled": true
+        },
+        "undersizedStorageDetection": {
+        "enabled": true
+        },
+        "slowPhysicalStorageDetection": {
+        "enabled": true
+        },
+        "droppedPacketsDetection": {
+        "enabled": true
+        },
+        "lowDatastoreSpaceDetection": {
+        "enabled": true
+        }
+    },
+    "success": 204
+}

@@ -1,0 +1,10 @@
+{
+    "uri": "v1/frequentIssueDetection",
+    "method": "put",
+    "payload": {
+        "frequentIssueDetectionApplicationEnabled": true,
+        "frequentIssueDetectionServiceEnabled": true,
+        "frequentIssueDetectionInfrastructureEnabled": true
+  },
+  "success": 204
+}
