@@ -7,6 +7,8 @@ import (
     "io/ioutil"
     "net/http"
     "bytes"
+    "github.com/yudai/gojsondiff"
+    "github.com/yudai/gojsondiff/formatter"
 )
 
 func main() {    
@@ -26,8 +28,12 @@ func main() {
     apiUrl = os.Getenv("DYNATRACE_API_URL")
     apiToken = os.Getenv("DYNATRACE_API_TOKEN")
 
+    // commands can be get, validate or apply
+    command := os.Args[1]
+ 
     // configuration json is set via command line argument
-    jsonFilePath := os.Args[1]
+    jsonFilePath := os.Args[2]
+
     // open the dynatrace configuration json
     jsonFile, err := os.Open(jsonFilePath)
     // if we os.Open returns an error then handle it
@@ -49,27 +55,64 @@ func main() {
 		return
 	}
     
-    // validate new configuration
-    if execHttpRequest("POST", apiUrl + "/" + uri + "/validator", payloadJson, apiToken, 204) {
-        fmt.Println("Successfully validated configuration!")
-        // apply configuration
-        if execHttpRequest(method, apiUrl + "/" + uri, payloadJson, apiToken, success) {
+    switch command {
+    case "get":
+        success, response := execHttpRequest("GET", apiUrl + "/" + uri, nil, apiToken, 200) 
+        if success {
+            bodyBytes, err := ioutil.ReadAll(response.Body)
+            if err != nil {
+                fmt.Println(err.Error())
+                return
+            }
+            bodyString := string(bodyBytes)
+            fmt.Println(bodyString)
+        }
+    case "diff":
+        success, response := execHttpRequest("GET", apiUrl + "/" + uri, nil, apiToken, 200) 
+        if success {
+            currentState, err := ioutil.ReadAll(response.Body)
+            if err != nil {
+                fmt.Println(err.Error())
+                return
+            }
+
+            // thats experimantal quick approach using github.com/yudai/gojsondiff
+            // configurationVersions and clusterVersion is obviously always different.
+            var aJson map[string]interface{}
+            json.Unmarshal(currentState, &aJson)
+            config := formatter.AsciiFormatterConfig{
+                ShowArrayIndex: true,
+                Coloring:       true,
+            }
+            differ := gojsondiff.New()
+            d, err := differ.Compare(currentState, payloadJson)
+            formatter := formatter.NewAsciiFormatter(aJson, config)
+            diffString, err := formatter.Format(d)
+            fmt.Print(diffString)
+        }
+    case "validate":
+        success, _ := execHttpRequest("POST", apiUrl + "/" + uri + "/validator", payloadJson, apiToken, 204) 
+        if success {
+            fmt.Println("Successfully validated configuration!")
+        }
+    case "apply":
+        success, _ := execHttpRequest(method, apiUrl + "/" + uri, payloadJson, apiToken, success)
+        if success {
             fmt.Println("Successfully applied configuration!")
         }
-    } else {
-        fmt.Println("Validation was not successful. I am sorry.")
+    default:
+        fmt.Println("Please specify a valid command as first parameter [get|diff|validate|apply]")
     }
-
     defer jsonFile.Close()
 }
 
-func execHttpRequest(method string, url string, data []byte, apiToken string, expectedReturncode int) bool {
+func execHttpRequest(method string, url string, data []byte, apiToken string, expectedReturncode int) (bool, *http.Response) {
     // execute http request as defined in the configuration file
     client := &http.Client{}
     req, err := http.NewRequest(method, url, bytes.NewBuffer(data))
     if err != nil {
         fmt.Println("Error occured: ", err)
-        return false
+        return false, nil
     }
     req.Header.Add("accept","application/json")
     req.Header.Add("Authorization","Api-Token " + apiToken)
@@ -77,13 +120,13 @@ func execHttpRequest(method string, url string, data []byte, apiToken string, ex
     resp, err := client.Do(req)
 	if err != nil {
 		fmt.Println(err.Error())
-		return false
+		return false, resp
 	}
     // check if http statuscode is the same as in the success field in the configuration file
     if resp.StatusCode == expectedReturncode {
-        return true
+        return true, resp
     } else {
         fmt.Println("Returncode not as expected: " + string(resp.StatusCode) + resp.Status)
     }
-    return false
+    return false, resp
 }
