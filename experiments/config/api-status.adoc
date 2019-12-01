@@ -6,9 +6,10 @@ Simple:
 
 Lists:
 
-- v1/alertingProfiles (empty by default)
-- v1/anomalyDetection/diskEvents (empty by default)
-- v1/anomalyDetection/metricEvents (some entries already exist)
+- v1/alertingProfiles (empty by default) ---> alertingProfile-MySampleAlertingProfile.json
+- v1/anomalyDetection/diskEvents (empty by default) --> anomalyDetection-diskEvents-low-var-log-disk.json
+- v1/anomalyDetection/metricEvents (some entries already exist) --> anomalyDetection-metricEvents-jvm-low-memory.json
+
 - v1/applicationDetectionRules (empty by default)
 - v1/autoTags (inludes sample tag entry)
 - v1/aws/credentials (empty by default)
