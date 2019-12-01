@@ -1,0 +1,22 @@
+{
+  "uri": "v1/anomalyDetection/diskEvents",
+  "configuration": {
+    "name": "low-var-log-disk",
+    "enabled": true,
+    "metric": "LOW_DISK_SPACE",
+    "threshold": 10,
+    "samples": 10,
+    "violatingSamples": 8,
+    "diskNameFilter": {
+        "operator": "STARTS_WITH",
+        "value": "/var/log"
+    },
+    "tagFilters": [
+        {
+        "context": "AWS",
+        "key": "string",
+        "value": "string"
+        }
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "uri": "v1/anomalyDetection/metricEvents",
+  "configuration": {
+    "metricId": "builtin:tech.jvm.memory.runtime.free",
+    "name": "JVM Low Memory",
+    "description": "The {metricname} value of {severity} was {alert_condition} your custom threshold of {threshold}.",
+    "aggregationType": "AVG",
+    "eventType": "CUSTOM_ALERT",
+    "severity": "CUSTOM_ALERT",
+    "alertCondition": "BELOW",
+    "samples": 10,
+    "violatingSamples": 1,
+    "dealertingSamples": 10,
+    "threshold": 200,
+    "enabled": true,
+    "unit": "MEGA_BYTE"
+  }
+}
+
