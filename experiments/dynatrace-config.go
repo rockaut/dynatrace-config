@@ -75,47 +75,59 @@ func main() {
     
     switch command {
     case "get":
-        success, response := execHttpRequest("GET", apiUrl + "/" + uri, nil, apiToken, 200) 
-        if success {
-            bodyBytes, err := ioutil.ReadAll(response.Body)
-            if err != nil {
-                fmt.Println(err.Error())
-                return
+        var currentState []byte
+        var err error
+        // depending on the uri we need to get the configuration directly or find the corresponding list item
+        if name, found := listConfigurations[uri]; found {
+            currentState = getListItem(name, apiUrl, uri, configurationJson, apiToken)
+        } else {
+            success, response := execHttpRequest("GET", apiUrl + "/" + uri, nil, apiToken, 200) 
+            if success {
+                currentState, err = ioutil.ReadAll(response.Body)
+                if err != nil {
+                    fmt.Println(err.Error())
+                    return
+                }
             }
-            bodyString := string(bodyBytes)
-            fmt.Println(bodyString)
         }
+        fmt.Println(string(currentState))
     case "diff":
-        success, response := execHttpRequest("GET", apiUrl + "/" + uri, nil, apiToken, 200) 
-        if success {
-            currentState, err := ioutil.ReadAll(response.Body)
-            if err != nil {
-                fmt.Println(err.Error())
-                return
+        var currentState []byte
+        var err error
+        // depending on the uri we need to get the configuration directly or find the corresponding list item
+        if name, found := listConfigurations[uri]; found {
+            currentState = getListItem(name, apiUrl, uri, configurationJson, apiToken)
+        } else {
+            success, response := execHttpRequest("GET", apiUrl + "/" + uri, nil, apiToken, 200) 
+            if success {
+                currentState, err = ioutil.ReadAll(response.Body)
+                if err != nil {
+                    fmt.Println(err.Error())
+                    return
+                }
             }
+        }
+        // thats experimantal quick approach using github.com/yudai/gojsondiff
+        // configurationVersions and clusterVersion is obviously always different.
+        var currentStateJson map[string]interface{}
+        json.Unmarshal(currentState, &currentStateJson)
 
-            // thats experimantal quick approach using github.com/yudai/gojsondiff
-            // configurationVersions and clusterVersion is obviously always different.
-            var currentStateJson map[string]interface{}
-            json.Unmarshal(currentState, &currentStateJson)
-
-            // ignore metadata when diffing currentState with desiredState
-            delete(currentStateJson,"metadata")
-            currentStateWithoutMetadata, _ := json.Marshal(currentStateJson)
-            
-            config := formatter.AsciiFormatterConfig{
-                ShowArrayIndex: true,
-                Coloring:       true,
-            }
-            differ := gojsondiff.New()
-            d, err := differ.Compare(currentStateWithoutMetadata, configurationJson)
-            if d.Modified() {
-                formatter := formatter.NewAsciiFormatter(currentStateJson, config)
-                diffString, _ := formatter.Format(d)
-                fmt.Print(diffString)
-            } else {
-                fmt.Print("no difference found.")
-            }
+        // ignore metadata when diffing currentState with desiredState
+        delete(currentStateJson,"metadata")
+        currentStateWithoutMetadata, _ := json.Marshal(currentStateJson)
+        
+        config := formatter.AsciiFormatterConfig{
+            ShowArrayIndex: true,
+            Coloring:       true,
+        }
+        differ := gojsondiff.New()
+        d, err := differ.Compare(currentStateWithoutMetadata, configurationJson)
+        if d.Modified() {
+            formatter := formatter.NewAsciiFormatter(currentStateJson, config)
+            diffString, _ := formatter.Format(d)
+            fmt.Print(diffString)
+        } else {
+            fmt.Print("no difference found.")
         }
     case "validate":
         success, _ := execHttpRequest("POST", apiUrl + "/" + uri + "/validator", configurationJson, apiToken, 204) 
@@ -184,7 +196,7 @@ func getIdByName(name string, url string, apiToken string) (string) {
     return ""
 }
 
-// used for list items
+// create or configure list item
 func createOrConfigureListItem(name string, apiUrl string, uri string, configurationJson []byte, apiToken string) {
     var config map[string]interface{}
     json.Unmarshal(configurationJson, &config)
@@ -203,4 +215,28 @@ func createOrConfigureListItem(name string, apiUrl string, uri string, configura
             fmt.Println("Successfully configured existing configuration!")
         }                 
     }
+}
+
+// get list item
+func getListItem(name string, apiUrl string, uri string, configurationJson []byte, apiToken string) ([]byte) {
+    var config map[string]interface{}
+    json.Unmarshal(configurationJson, &config)
+    nameIdentifier := config[name].(string)
+    id := getIdByName(nameIdentifier, apiUrl + "/" + uri, apiToken)
+    // if id is empty, we need to create a new element with POST method
+    if id == "" {
+        return nil
+    // if id already exists, then execute a GET on the specific ID element        
+    } else {
+        success, response := execHttpRequest("GET", apiUrl + "/" + uri + "/" + id, nil, apiToken, 200)
+        if success {
+            bodyBytes, err := ioutil.ReadAll(response.Body)
+            if err != nil {
+                fmt.Println(err.Error())
+                return nil
+            }
+            return bodyBytes
+        }               
+    }
+    return nil
 }
