@@ -1,5 +1,5 @@
 {
-  "uri": "v1/anomalyDetection/applications",
+  "uri": "config/v1/anomalyDetection/applications",
   "method": "put",
   "payload": {
     "responseTimeDegradation": {
