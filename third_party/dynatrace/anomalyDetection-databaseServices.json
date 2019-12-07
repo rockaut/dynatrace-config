@@ -1,30 +1,28 @@
 {
-  "uri": "v1/anomalyDetection/applications",
+  "uri": "config/v1/anomalyDetection/databaseServices",
   "method": "put",
   "payload": {
     "responseTimeDegradation": {
       "detectionMode": "DETECT_AUTOMATICALLY",
       "automaticDetection": {
-        "responseTimeDegradationMilliseconds": 100,
+        "responseTimeDegradationMilliseconds": 5,
         "responseTimeDegradationPercent": 50,
-        "slowestResponseTimeDegradationMilliseconds": 1000,
+        "slowestResponseTimeDegradationMilliseconds": 20,
         "slowestResponseTimeDegradationPercent": 100,
         "loadThreshold": "TEN_REQUESTS_PER_MINUTE"
       }
     },
-    "trafficDrop": {
-      "enabled": true,
-      "trafficDropPercent": 50
-    },
-    "trafficSpike": {
-      "enabled": false
-    },
     "failureRateIncrease": {
       "detectionMode": "DETECT_AUTOMATICALLY",
       "automaticDetection": {
-        "failingServiceCallPercentageIncreaseAbsolute": 5,
+        "failingServiceCallPercentageIncreaseAbsolute": 0,
         "failingServiceCallPercentageIncreaseRelative": 50
       }
+    },
+    "databaseConnectionFailureCount": {
+      "enabled": true,
+      "connectionFailsCount": 5,
+      "timePeriodMinutes": 5
     }
   },
   "success": 204

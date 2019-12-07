@@ -1,0 +1,31 @@
+{
+    "uri": "config/v1/anomalyDetection/aws",
+    "method": "put",
+    "payload": {
+        "rdsHighCpuDetection": {
+            "enabled": true
+        },
+        "rdsHighWriteReadLatencyDetection": {
+            "enabled": true
+        },
+        "rdsLowStorageDetection": {
+            "enabled": true
+        },
+        "rdsHighMemoryDetection": {
+            "enabled": true
+        },
+        "elbHighConnectionErrorsDetection": {
+            "enabled": true
+        },
+        "rdsRestartsSequenceDetection": {
+            "enabled": true
+        },
+        "lambdaHighErrorRateDetection": {
+            "enabled": true
+        },
+        "ec2CandidateCpuSaturationDetection": {
+            "enabled": true
+        }
+    },
+    "success": 204
+}

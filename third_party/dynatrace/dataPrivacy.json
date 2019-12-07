@@ -1,0 +1,10 @@
+{
+    "uri": "config/v1/dataPrivacy",
+    "method": "put",
+    "payload": {
+        "maskIpAddressesAndGpsCoordinates": true,
+        "maskUserActionNames": false,
+        "maskPersonalDataInUris": false
+    },
+    "success": 204
+}
