@@ -1,0 +1,50 @@
+{
+    "uri": "config/v1/anomalyDetection/hosts",
+    "method": "put",
+    "payload": {
+        "connectionLostDetection": {
+            "enabled": true,
+            "enabledOnGracefulShutdowns": false
+        },
+        "highCpuSaturationDetection": {
+            "enabled": true
+        },
+        "highMemoryDetection": {
+            "enabled": true
+        },
+        "highGcActivityDetection": {
+            "enabled": true
+        },
+        "outOfMemoryDetection": {
+            "enabled": true
+        },
+        "outOfThreadsDetection": {
+            "enabled": true
+        },
+        "networkDroppedPacketsDetection": {
+            "enabled": true
+        },
+        "networkErrorsDetection": {
+            "enabled": true
+        },
+        "highNetworkDetection": {
+            "enabled": true
+        },
+        "networkTcpProblemsDetection": {
+            "enabled": true
+        },
+        "networkHighRetransmissionDetection": {
+            "enabled": true
+        },
+        "diskLowSpaceDetection": {
+            "enabled": true
+        },
+        "diskSlowWritesAndReadsDetection": {
+            "enabled": true
+        },
+        "diskLowInodesDetection": {
+            "enabled": true
+        }
+    },
+    "success": 204
+}
