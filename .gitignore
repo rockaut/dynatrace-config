@@ -1,4 +1,6 @@
 
 build/bin/**/*
+bin/**/*
+dist/**/*
 
 .vscode/**/*
